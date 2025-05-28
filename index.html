@@ -14,6 +14,8 @@ CREATE TABLE table_name (
 
 DELETE FROM table_name WHERE condition;
 
+ALTER TABLE results AUTO_INCREMENT = 100;
+
 DROP TABLE table_name;
 DROP DATABASE database_name;
 
@@ -45,3 +47,136 @@ _ 	Represents a single character
 [A-F]% range
 ** Supported only in Oracle databases. 
 
+CREATE TABLE Countries (
+	ID INT AUTO_INCREMENT,
+	Name VARCHAR(50),
+	PRIMARY KEY (ID)
+);
+
+CREATE TABLE Destinations (
+	ID INT AUTO_INCREMENT,
+	Town VARCHAR(30),
+	Distance INT,
+	Duration INT,
+	Price DOUBLE(10, 2),
+	CountryId INT,
+	PRIMARY KEY (ID),
+	FOREIGN KEY (CountryId) REFERENCES Countries(ID)
+);
+
+INSERT INTO Countries VALUES 
+	(1, "France"),
+	(2, "Germany"),
+	(3, "Italy"),
+	(4, "Spain"),
+	(5, "Austria")
+;
+
+INSERT INTO Destinations VALUES 
+	(1, "Paris", 2169, 4, 1800.00, 1),
+	(2, "Berlin", 4006, 6, 2100.00, 2),
+	(3, "Rome", 1666, 3, 1500.00, 3),
+	(4, "Madrid", 2966, 7, 1800.00, 4),
+	(5, "Milan", 1408, 4, 1900.00, 3),
+	(6, "Venice", 1152, 3, 1200.00, 3),
+	(7, "Barcelona", 2375, 7, 2800.00, 4)
+;
+
+UPDATE Destinations SET Price = 1700 WHERE Town = "Paris";
+
+DELETE FROM Destinations WHERE Town LIKE "Ba%";
+
+SELECT Town, Distance FROM Destinations WHERE Distance >= 1500 AND Distance <= 2500;
+
+SELECT Town, Price FROM Destinations ORDER BY Price DESC LIMIT 1;
+
+SELECT Name, COUNT(Destinations.Town) AS count FROM Countries
+JOIN Destinations ON Countries.ID = Destinations.CountryId
+GROUP BY Name
+ORDER BY count DESC, Name
+;
+CREATE TABLE drivers (
+	id INT AUTO_INCREMENT,
+	first_name VARCHAR(50) NOT NULL,
+	last_name VARCHAR(50) NOT NULL,
+	current_points DOUBLE(50, 2),
+	natianality VARCHAR(50),
+	team VARCHAR(50) NOT NULL,
+	PRIMARY KEY(id)
+);
+
+CREATE TABLE races (
+	id INT AUTO_INCREMENT,
+	name VARCHAR(80) NOT NULL,
+	location VARCHAR(100) NOT NULL,
+	date DATE NOT NULL,
+	PRIMARY KEY(id)
+);
+
+-- ALTER TABLE t1 ADD PRIMARY KEY(brand_id);
+-- ALTER TABLE t1 DROP PRIMARY KEY;
+-- ALTER TABLE t1 ADD FOREIGN KEY (brand_id) REFERENCES t0(id);
+
+CREATE TABLE results (
+	id INT AUTO_INCREMENT,
+	points DOUBLE(50, 2) NOT NULL,
+	time TIME,
+	race_id INT NOT NULL,
+	driver_id INT NOT NULL,
+	FOREIGN KEY(race_id) REFERENCES races(id),
+	FOREIGN KEY(driver_id) REFERENCES drivers(id),
+	PRIMARY KEY(id)
+);
+
+INSERT INTO drivers (id, first_name, last_name, current_points, natianality, team) VALUES 
+	(1, "Fernando", "Alonso", 87.00, "Spanish", "Aston Martin"),
+	(2, "Lewis", "Hamilton", 120.00, "British", "Mercedes"),
+	(3, "Max", "Verstappen", 130.50, "Dutch", "Red Bull Racing"),
+	(4, "Charles", "Leclerc", 148.00, "Monegasque", "Ferrari"),
+	(5, "George", "Russell", 78.50, "British", "Mercedes"),
+	(6, "Sergio", "Perez", 85.00, "Mexican", "Red Bull Racing")
+;
+
+INSERT INTO races (id, name, location, date) VALUES 
+	(1, "Bahrain Grand Prix", "Sakhir", "2025-03-02"),
+	(2, "Saudi Arabian Grand Prix", "Jeddah", "2025-03-16"),
+	(3, "Australian Grand Prix", "Melbourne", "2025-03-30"),
+	(4, "Monaco Grand Prix", "Monaco", "2025-05-26"),
+	(5, "British Grand Prix", "Silverstone", "2025-07-07"),
+	(6, "Japanese Grand Prix", "Suzuka", "2025-10-13")
+;
+
+ALTER TABLE results MODIFY COLUMN time TIME;
+
+INSERT INTO results (id, points, time, race_id, driver_id) VALUES 
+	(1, 25.00, "01:33:45", 1, 1),
+	(2, 18.00, "01:34:02", 1, 2),
+	(3, 25.00, "01:27:12", 2, 2),
+	(4, 18.00, "01:28:45", 2, 3),
+	(5, 25.00, "01:35:10", 3, 3),
+	(6, 15.00, "01:36:30", 3, 4),
+	(7, 25.00, "01:38:45", 4, 5),
+	(8, 18.00, "01:39:20", 4, 6)
+;
+
+UPDATE races SET name = "Monte Carlo" WHERE name = "Monaco Grand Prix";
+
+SELECT first_name, last_name, current_points FROM drivers
+WHERE current_points > 100
+ORDER BY current_points DESC
+;
+
+SELECT AVG(current_points) AS average_points FROM drivers
+WHERE natianality LIKE "M%"
+;
+
+SELECT team, COUNT(*) AS number_of_drivers FROM drivers
+GROUP BY team
+ORDER BY team
+;
+
+SELECT drivers.first_name AS first_name, drivers.last_name AS last_name, races.name AS race_name, results.points AS points
+FROM results
+JOIN drivers ON drivers.id = results.driver_id
+JOIN races ON races.id = results.race_id
+;
